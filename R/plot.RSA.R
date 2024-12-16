@@ -553,19 +553,19 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	## ======================================================================
 	
 	if (type == "interactive") {
+	    # print("TEST OK2")
 		if (!requireNamespace("rgl", quietly = TRUE)) {
 			stop("`rgl` package needed for interactive plots. Please install it with install.packages('rgl').", call. = FALSE)
 		}
-		
 		P <- list(x=seq(xlim[1], xlim[2], length.out=grid), y=seq(ylim[1], ylim[2], length.out=grid))
 		DV2 <- matrix(new2$z, nrow=grid, ncol=grid, byrow=FALSE)
 		R <- range(DV2)
 		col2 <- as.character(cut(1:(R[2] - R[1] + 1), breaks=length(pal), labels=pal))
-		
-		rgl::open3d(cex=cex.main)
-		rgl::view3d(-30, -90, fov=0)
+		# rgl::open3d(cex=cex.main)
+		# rgl::view3d(-30, -90, fov=0)
+		rgl::plot3d(-30, -90, fov=0, xlim=xlim, ylim=ylim, zlim=zlim)
 		rgl::light3d(theta = 0, phi = 90, viewpoint.rel = TRUE, ambient = "#FF0000", diffuse = "#FFFFFF", specular = "#FFFFFF")
-		rgl::persp3d(P$x, P$y, DV2, xlab = xlab, ylab = ylab, zlab = zlab, color=col2[DV2 - R[1] + 1], main=main, ...)
+		rgl::persp3d(P$x, P$y, DV2, xlab = xlab, ylab = ylab, zlab = zlab, xlim=xlim, ylim=ylim, zlim=zlim, color=col2[DV2 - R[1] + 1], main=main, ...)
 
 		if (contour$show == TRUE) {
 		    contours <- contourLines(P, z=DV2)
@@ -573,10 +573,19 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 				 with(contours[[i]], rgl::lines3d(x, y, level, col=contour$color))
 			 }
 		 }
-		
+
 		if (points$show == TRUE) {
 			if (points$out.mark == FALSE) {
-				rgl::points3d(data.frame(xpoints, ypoints, zpoints), col=points$color)
+			    # print("TEST OK3")
+				# rgl::points3d(data.frame(xpoints, ypoints, zpoints), col=points$color)
+				temp0 <- data.frame(xpoints, ypoints, zpoints)
+				temp2 <- temp0[
+				  temp0$xpoints >= xlim[1] & temp0$xpoints <= xlim[2] &
+				  temp0$ypoints >= ylim[1] & temp0$ypoints <= ylim[2] &
+				  temp0$zpoints >= zlim[1] & temp0$zpoints <= zlim[2],
+				]
+				rgl::points3d(temp2, col=points$color)
+
 			}
 			if (points$out.mark == TRUE) {
 				if (!is.null(fit)) {

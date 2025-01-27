@@ -322,8 +322,9 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 		if (!is.null(fit) & model != "null") {
 			SP <- RSA.ST(fit, model=model)
 			PAR <- getPar(fit, "coef", model=model)
-			
-			SP.text <- paste0("a", 1:5, ": ", f2(SP$SP$estimate, 2), p2star(SP$SP$p.value), collapse="   ")
+			R2 <- getPar(fit, "R2", model=model)
+
+			SP.text <- paste("R2: ", round(R2,2), "\n", paste0("a", 1:5, ": ", f2(SP$SP$estimate, 2), p2star(SP$SP$p.value), collapse="   "))
 			
 			a4rs_par <- PAR[PAR$label == "a4.rescaled", ]
 			if (nrow(a4rs_par) == 1) {
@@ -561,11 +562,14 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 		DV2 <- matrix(new2$z, nrow=grid, ncol=grid, byrow=FALSE)
 		R <- range(DV2)
 		col2 <- as.character(cut(1:(R[2] - R[1] + 1), breaks=length(pal), labels=pal))
-		# rgl::open3d(cex=cex.main)
-		# rgl::view3d(-30, -90, fov=0)
-		rgl::plot3d(-30, -90, fov=0, xlim=xlim, ylim=ylim, zlim=zlim)
+		rgl::plot3d(-45, -90, fov=0, xlim=xlim, ylim=ylim, zlim=zlim)
 		rgl::light3d(theta = 0, phi = 90, viewpoint.rel = TRUE, ambient = "#FF0000", diffuse = "#FFFFFF", specular = "#FFFFFF")
-		rgl::persp3d(P$x, P$y, DV2, xlab = xlab, ylab = ylab, zlab = zlab, xlim=xlim, ylim=ylim, zlim=zlim, color=col2[DV2 - R[1] + 1], main=main, ...)
+		rgl::persp3d(P$x, P$y, DV2, xlab = xlab, ylab = ylab, zlab = zlab, xlim=xlim, ylim=ylim, zlim=zlim, alpha=0.5, color=col2[DV2 - R[1] + 1], main=main, ...)
+
+        rgl::spheres3d(0, 0, 0, radius=0.1, color="black")
+        rgl::arrow3d(p0=c(0,0,0), p1=c(1,0,0), col="red", type="lines")    # X axis
+        rgl::arrow3d(p0=c(0,0,0), p1=c(0,1,0), col="green", type="lines")  # Y axis
+        rgl::arrow3d(p0=c(0,0,0), p1=c(0,0,1), col="blue", type="lines")   # Z axis
 
 		if (contour$show == TRUE) {
 		    contours <- contourLines(P, z=DV2)
@@ -774,10 +778,8 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 						  panel.3dwire(x = x, y = y, z = z, xlim = xlim, ylim = ylim, zlim = zlim,
 		                           xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled,
 								   col=gridCol, lwd=0.5, ...)
-								   
 					   }
-								   
-								   
+
 					# ---------------------------------------------------------------------
 					# 4. plot of LOC and LOIC, and other axes
 					if (suppress.surface==FALSE) {
@@ -980,6 +982,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 					zlab	= list(cex=cex.axesLabel, label=zlab, rot=label.rotation[["z"]]), zlim=zlim, 
 					main	= list(cex=cex.main, label=main),
 					screen	= rotation,
+					alpha.regions=0.75,
 					at		= at, col.regions=pal, colorkey=CK, 
 					par.settings = list(
 						axis.line = list(col = "transparent"), 
@@ -987,7 +990,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 						layout.widths=list(left.padding=pad, right.padding=pad),
 						box.3d = list(col=boxCol)), 
 					axes	= axes,
-					axesList= axesList, 
+					axesList= axesList,
 					SPs		= SP.text,
 					COEFS	= COEFS, 
 					panel.3d.wireframe = mypanel2,
